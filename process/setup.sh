@@ -1,0 +1,3 @@
+#!/bin/bash
+
+# delete file

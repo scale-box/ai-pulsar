@@ -1,0 +1,17 @@
+FROM python:3.6
+
+RUN \
+    pip install pysocks && export ALL_PROXY=socks5://127.0.0.1:1080 && \
+    # 不能改为https，否则会导致后续安装torchvision的安装问题
+    pip install torch -f http://download.pytorch.org/whl/rocm4.0.1/torch_stable.html \
+    && pip install ninja && pip install 'git+https://github.com/pytorch/vision.git@v0.9.0' \
+    && pip install opencv-python \
+    && apt-get update && apt-get install -y libfftw3-dev \
+# https://sigpyproc3.readthedocs.io/en/stable/install.html 
+    && pip install git+https://github.com/FRBs/sigpyproc3
+
+
+# http://download.pytorch.org/whl/rocm3.10/torch_stable.html
+
+# dpkg --purge unzip
+# apt-get remove --purge -y $BUILD_PACKAGES $(apt-mark showauto) && rm -rf /var/lib/apt/lists/*

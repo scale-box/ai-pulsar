@@ -1,0 +1,128 @@
+version: '1.0.0'
+
+name: fast.ai-pulsar
+label: pipeline ai-pulsar  
+submitter: user
+# from 1-9
+priority: 5
+memo: pipeline ai-pulsar base on AMD-GPU
+
+jobs:
+  untar:
+    name: untar-ai-plusar
+    label: tar unpack
+    base_image: csst/python:3.8
+    cluster: default
+    input_datasets:
+      - default.fast.psr_19beam_1bit1k.tar:/input
+    output_datasets:
+      - default.fast.psr_19beam_1bit1k.source:/output
+    type: compute
+    hosts:
+      - r01:1:2
+      - r02:1:2
+    docker_command: docker run -d --rm --network=host %ENVS% %VOLUMES% %IMAGE%
+
+  source-receiver:
+    name: source-receiver
+    label: source data receiver
+    base_image: openccf/receiver
+    code_uri: $NULL$
+    cluster: c419_slave
+    output_datasets:
+      - c419_slave.fast.psr_19beam_1bit1k.source:/share
+    envs:
+      - TRANSPORT_TYPE=rsync
+      - RSYNC_PORT=10873
+    type: network
+    hosts:
+      - h419_0:1
+    docker_command: docker run -d --rm --network=host %ENVS% %VOLUMES% %IMAGE%
+  source-sender:
+    name: source-sender
+    label: source data sender
+    base_image: openccf/sender
+    code_uri: $NULL$
+    cluster: default
+    input_datasets:
+      - default.fast.psr_19beam_1bit1k.source:/input
+    envs:
+      - RECEIVER_HOST=223.193.33.31
+      - TRANSPORT_TYPE=rsync
+      - RSYNC_PORT=10873
+    type: network
+    hosts:
+      - host0:2:3
+    docker_command: docker run -d --rm --network=host %ENVS% %VOLUMES% %IMAGE%
+
+  process:
+    name: do-plusar-search
+    label: PyTorch
+    base_image: fast/pytorch:rocm
+    cluster: c419_slave
+    input_datasets:
+      - c419_slave.fast.psr_19beam_1bit1k.source:/input
+    output_datasets:
+      - c419_slave.fast.ai-pulsar.result:/output
+    type: compute
+    hosts:
+      - h419_1:4:4
+      - h419_2:4:4
+    docker_command: docker run -d --rm --network=host %ENVS% %VOLUMES% %IMAGE%
+
+  result-receiver:
+    name: result-receiver
+    label: resule data receiver
+    base_image: openccf/receiver
+    code_uri: $NULL$
+    cluster: default
+    output_datasets:
+      - default.fast.ai-pulsar.result:/share
+    envs:
+      - TRANSPORT_TYPE=rsync
+      - RSYNC_PORT=10873
+    type: network
+    hosts:
+      - host0:1
+    docker_command: docker run -d --rm --network=host %ENVS% %VOLUMES% %IMAGE%
+  result-sender:
+    name: result-sender
+    label: resule data sender
+    base_image: openccf/sender
+    code_uri: $NULL$
+    cluster: c419_slave
+    input_datasets:
+      - c419_slave.fast.ai-pulsar.result:/input
+    envs:
+      - RECEIVER_HOST=159.226.237.136
+      - TRANSPORT_TYPE=rsync
+      - RSYNC_PORT=10873
+    type: network
+    hosts:
+      - h419_0:2:3
+    docker_command: docker run -d --rm --network=host %ENVS% %VOLUMES% %IMAGE%
+
+datasets:
+  default.fast.psr_19beam_1bit1k.tar:
+    name: source tar files
+    base_uri: dir:host0:/gfsdata/psr_19beam_1bit1k
+    filter: ^201912/15.tar$
+    # filter: ^201912.*tar$
+    # owner: user
+    # data_version: 1.0.0
+  default.fast.psr_19beam_1bit1k.source:
+    name: source files
+    base_uri: dir:host0:/gfsdata/ai-pulsar/source
+    filter: ^.*fil$
+  c419_slave.fast.psr_19beam_1bit1k.source:
+    name: source files
+    base_uri: dir:h419_0:/gfsdata/ai-pulsar/c419-source
+    filter: ^.*fil$
+  c419_slave.fast.ai-pulsar.result:
+    name: result files
+    base_uri: dir:h419_0:/gfsdata/ai-pulsar/c419-result
+    filter: ^.*abc$
+  default.fast.ai-pulsar.result:
+    name: result files
+    base_uri: dir:host0:/gfsdata/ai-pulsar/result
+    filter: ^.*abc$

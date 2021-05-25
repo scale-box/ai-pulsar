@@ -1,0 +1,78 @@
+version: '1.0.0'
+
+label: Global DataSet & Cluster/Host
+
+specs:
+  hp380:
+    # CPU cores
+    - cpu:24
+    # Memory(GB)
+    - mem:96
+  dell:
+    # CPU cores
+    - cpu:12
+    # Memory(GB)
+    - mem:32
+
+  gpu_n1:
+    # CPU cores
+    - cpu:24
+    # number of Nvidia GPU
+    - gpu_n:8
+    # Memory(GB)
+    - mem:256
+  gpu_n2:
+    # CPU cores
+    - cpu:24
+    # number of Nvidia GPU
+    - gpu_n:4
+    # Memory(GB)
+    - mem:256
+  gpu_419:
+    # CPU cores
+    - cpu:32
+    # number of AMD GPU
+    - gpu_a:4
+    # Memory(GB)
+    - mem:128
+
+clusters:
+  default:
+    base_dir: /gfsdata/gateway
+    code_base_dir: /gfsdata/gateway/code
+    data_base_dir: /gfsdata/gateway/data
+    log_base_dir: /gfsdata/gateway/log
+    grpc_server: 10.255.128.1:50051
+    hosts:
+      host0:
+        label: server0(159.226.237.136)
+        ip_addr: root@10.255.128.1
+      r01:
+        label: r01 server
+        ip_addr: root@10.255.11.1
+        spec: hp380
+      r02:
+        label: r02 server
+        ip_addr: root@10.255.11.2
+        spec: hp380
+
+  c419_slave:
+    base_dir: /gfsdata/gateway
+    code_base_dir: /gfsdata/gateway/code
+    data_base_dir: /gfsdata/gateway/data
+    log_base_dir: /gfsdata/gateway/log
+    grpc_server: 10.200.1.100:50051
+    hosts:
+      h419_0:
+        label: 419 server0（172.31.255.1/223.193.33.31）
+        # ip_addr: kaichao@60.245.128.60
+        ip_addr: root@10.200.1.100
+        spec: hp380
+      h419_1:
+        label: 419 node1
+        ip_addr: root@10.11.16.79
+        spec: gpu_419
+      h419_2:
+        label: 419 node2
+        ip_addr: fast@10.11.16.80
+        spec: gpu_419
