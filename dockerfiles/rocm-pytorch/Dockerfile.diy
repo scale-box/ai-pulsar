@@ -1,17 +1,42 @@
-FROM python:3.6
+# FROM python:3.6
+FROM hub.cstcloud.cn/scalebox/base
+
+FROM rocm/dev-ubuntu-18.04:4.0.1
+
+LABEL maintainer="Kaichao Wu<kaichao@cnic.cn>"
 
 RUN \
-    pip install pysocks && export ALL_PROXY=socks5://127.0.0.1:1080 && \
-    # 不能改为https，否则会导致后续安装torchvision的安装问题
-    pip install torch -f http://download.pytorch.org/whl/rocm4.0.1/torch_stable.html \
-    && pip install ninja && pip install 'git+https://github.com/pytorch/vision.git@v0.9.0' \
-    && pip install opencv-python \
-    && apt-get update && apt-get install -y libfftw3-dev \
+    apt-get update \
+    && apt-get install -y python3-pip git \
+    && pip3 install pysocks \
+    && pip3 install --upgrade pip 
+    # apt-get clean && \
+    # rm -rf /var/lib/apt/lists/*
+
+ARG ALL_PROXY=socks5://127.0.0.1:1080
+     
+# 不能改为https，否则会导致后续安装torchvision的安装出错
+RUN pip3 install torch -f http://download.pytorch.org/whl/rocm4.0.1/torch_stable.html
+
+RUN apt-get install -y libfftw3-dev \
+    && pip3 install opencv-python 
+
+RUN pip3 install ninja && pip3 install 'git+https://github.com/pytorch/vision.git@v0.9.0' 
+
 # https://sigpyproc3.readthedocs.io/en/stable/install.html 
-    && pip install git+https://github.com/FRBs/sigpyproc3
+RUN pip3 install git+https://github.com/FRBs/sigpyproc3    
+
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    PATH=/opt/rocm/llvm/bin:/opt/rocm/opencl/bin:/opt/rocm/hip/bin:/opt/rocm/bin:$PATH
 
 
 # http://download.pytorch.org/whl/rocm3.10/torch_stable.html
-
 # dpkg --purge unzip
 # apt-get remove --purge -y $BUILD_PACKAGES $(apt-mark showauto) && rm -rf /var/lib/apt/lists/*
+
+COPY --from=0 /app/sbin /app/sbin/
+ENV PATH=/app/bin:/app/sbin:$PATH \
+    GRPC_SERVER=192.168.18.11:50051
+
+ENTRYPOINT ["grpc-worker.sh"]

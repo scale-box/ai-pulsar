@@ -103,13 +103,13 @@ jobs:
     docker_command: docker run -d --rm --network=host %ENVS% %VOLUMES% %IMAGE%
 
 datasets:
-  default.fast.psr_19beam_1bit1k.tar:
-    name: source tar files
-    base_uri: dir:host0:/gfsdata/psr_19beam_1bit1k
-    filter: ^201912/15.tar$
-    # filter: ^201912.*tar$
-    # owner: user
-    # data_version: 1.0.0
+  # default.fast.psr_19beam_1bit1k.tar:
+  #   name: source tar files
+  #   base_uri: dir:host0:/gfsdata/psr_19beam_1bit1k
+  #   filter: ^201912/15.tar$
+  #   # filter: ^201912.*tar$
+  #   # owner: user
+  #   # data_version: 1.0.0
   default.fast.psr_19beam_1bit1k.source:
     name: source files
     base_uri: dir:host0:/gfsdata/ai-pulsar/source

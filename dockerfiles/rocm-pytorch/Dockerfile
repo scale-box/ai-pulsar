@@ -16,7 +16,7 @@ COPY --from=0 /app/sbin /app/sbin/
 
 ENV LANG en_US.utf8
 ENV LD_LIBRARY_PATH /usr/local/lib:/usr/local/lib/python2.7/dist-packages/sigpyproc-0.1.1-py2.7-linux-x86_64.egg:$LD_LIBRARY_PATH
-ENV PATH /app/bin:/app/sbin:$PATH
+ENV PATH=/app/bin:/app/sbin:$PATH
 ENV PYTHONPATH=/sigpyproc:$PYTHONPATH
 
 ENV GRPC_SERVER=192.168.18.11:50051

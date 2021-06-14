@@ -76,3 +76,12 @@ clusters:
         label: 419 node2
         ip_addr: fast@10.11.16.80
         spec: gpu_419
+
+datasets:
+  default.fast.psr_19beam_1bit1k.tar:
+    name: source tar files
+    base_uri: dir:host0:/gfsdata/psr_19beam_1bit1k
+    filter: ^201912/15.tar$
+    # filter: ^201912.*tar$
+    # owner: user
+    # data_version: 1.0.0

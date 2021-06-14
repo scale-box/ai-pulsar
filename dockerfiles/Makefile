@@ -1,9 +1,16 @@
-IMAGE=fast/pytorch:rocm
+IMAGE=hub.cstcloud.cn/fast/pytorch:rocm
 
 build:
 	docker build --network host -t $(IMAGE) rocm-pytorch
 
 build-diy:
+	docker build --network host -f rocm-pytorch/Dockerfile.diy -t $(IMAGE) rocm-pytorch
+
+push:
+	docker push $(IMAGE)
+
+transfer:
+	docker save $(IMAGE) | pv | ssh node2 'docker load'
 
 load:
 	date

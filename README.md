@@ -11,6 +11,3 @@
 - [Equivalent to NVIDIA_VISIBLE_DEVICES in ROCm](https://gitmemory.com/issue/RadeonOpenCompute/ROCm/994/573876648)
 - [How can I allocate different AMD gpu device to different process?](https://github.com/RadeonOpenCompute/ROCm/issues/841)
 
-
-
-
