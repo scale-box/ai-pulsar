@@ -1,7 +1,8 @@
 # FROM python:3.6
 FROM hub.cstcloud.cn/scalebox/base
 
-FROM rocm/dev-ubuntu-18.04:4.0.1
+# FROM rocm/dev-ubuntu-18.04:4.0.1
+FROM hub.cstcloud.cn/fast/pytorch:rocm-4.0.1-runtime
 
 LABEL maintainer="Kaichao Wu<kaichao@cnic.cn>"
 
@@ -16,11 +17,15 @@ RUN \
 ARG ALL_PROXY=socks5://127.0.0.1:1080
      
 # 不能改为https，否则会导致后续安装torchvision的安装出错
-RUN pip3 install torch -f http://download.pytorch.org/whl/rocm4.0.1/torch_stable.html
+RUN pip3 install torch -f http://download.pytorch.org/whl/rocm4.0.1/torch_stable.html \
+    && cd /usr/local/lib/python3.6/dist-packages/torch/lib && strip libtorch_cpu.so libtorch_cuda.so
+
 
 RUN apt-get install -y libfftw3-dev \
     && pip3 install opencv-python 
 
+# 自定义的runtime时，要再安装python3-setuptools python3-dev
+RUN apt-get install -y python3-setuptools python3-dev 
 RUN pip3 install ninja && pip3 install 'git+https://github.com/pytorch/vision.git@v0.9.0' 
 
 # https://sigpyproc3.readthedocs.io/en/stable/install.html 
